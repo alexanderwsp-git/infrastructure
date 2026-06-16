@@ -1,0 +1,50 @@
+{
+    "family": "mexp-lanapp-back",
+    "networkMode": "awsvpc",
+    "requiresCompatibilities": ["FARGATE"],
+    "cpu": "512",
+    "memory": "1024",
+    "executionRoleArn": "arn:aws:iam::991795763909:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::991795763909:role/mexp-lanapp-back-task-role",
+    "containerDefinitions": [
+      {
+        "name": "lanapp-api",
+        "image": "991795763909.dkr.ecr.us-east-1.amazonaws.com/mexp-lanapp-back:$IMAGE_TAG",
+        "essential": true,
+        "portMappings": [
+          {
+            "containerPort": 3000,
+            "protocol": "tcp"
+          }
+        ],
+        "environment": [
+          { "name": "PORT", "value": "$PORT" },
+          { "name": "NODE_ENV", "value": "$NODE_ENV" },
+          { "name": "DATABASE_URL", "value": "$DATABASE_URL" },
+          { "name": "DATABASE_SSL", "value": "$DATABASE_SSL" },
+          { "name": "DATABASE_SCHEMA", "value": "$DATABASE_SCHEMA" },
+          { "name": "API_PREFIX", "value": "$API_PREFIX" },
+          { "name": "SKIP_AUTH", "value": "$SKIP_AUTH" }
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/mexp-lanapp-back",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs"
+          }
+        },
+        "healthCheck": {
+        "command": [
+            "CMD-SHELL",
+            "node -e \"require('http').get('http://127.0.0.1:3000/api/v1/lanapp/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+        }
+      }
+    ]
+  }
+  
