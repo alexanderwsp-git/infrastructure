@@ -1,41 +1,19 @@
 # =============================================================================
-# Shared Cognito User Pool — Myxperiences suite (lanapp, admin, myxperiences)
-# One directory of users; separate app clients per product; groups per app+role.
+# Cognito User Pool — Lanapp only
+# Admin invite + groups: lanapp_admin, lanapp_veterinario, lanapp_operario
 # =============================================================================
 
 locals {
-  cognito_pool_name = "mexp-myxperiences-users"
+  cognito_pool_name = "mexp-lanapp-users"
 
-  # App clients: each ECS frontend BFF uses its own client (confidential + secret).
-  cognito_apps = {
-    lanapp = {
-      name = "mexp-lanapp"
-    }
-    admin = {
-      name = "mexp-admin"
-    }
-    myxperiences = {
-      name = "mexp-myxperiences"
-    }
-  }
-
-  # Groups: <app>_<role> — assign users to one or more groups across apps.
   cognito_groups = {
-    platform_admin = { description = "Full platform access across all suite apps" }
-
     lanapp_admin       = { description = "Lanapp — Administrador" }
     lanapp_veterinario = { description = "Lanapp — Veterinario" }
     lanapp_operario    = { description = "Lanapp — Operario" }
-
-    admin_admin    = { description = "Admin panel — Administrador" }
-    admin_operator = { description = "Admin panel — Operador" }
-
-    myxperiences_admin = { description = "Myxperiences — Administrador" }
-    myxperiences_user  = { description = "Myxperiences — Usuario" }
   }
 }
 
-resource "aws_cognito_user_pool" "mexp" {
+resource "aws_cognito_user_pool" "lanapp" {
   name = local.cognito_pool_name
 
   user_pool_tier = "LITE"
@@ -72,27 +50,25 @@ resource "aws_cognito_user_pool" "mexp" {
 
   tags = merge(var.tags_base, {
     Name = local.cognito_pool_name
-    app  = "suite"
+    app  = "lanapp"
   })
 }
 
-resource "aws_cognito_user_pool_domain" "mexp" {
-  domain       = "mexp-${replace(var.domain_name, ".", "-")}"
-  user_pool_id = aws_cognito_user_pool.mexp.id
+resource "aws_cognito_user_pool_domain" "lanapp" {
+  domain       = "mexp-lanapp-${replace(var.domain_name, ".", "-")}"
+  user_pool_id = aws_cognito_user_pool.lanapp.id
 }
 
-resource "aws_cognito_user_pool_client" "apps" {
-  for_each = local.cognito_apps
+resource "aws_cognito_user_pool_client" "lanapp" {
+  name         = "mexp-lanapp"
+  user_pool_id = aws_cognito_user_pool.lanapp.id
 
-  name         = each.value.name
-  user_pool_id = aws_cognito_user_pool.mexp.id
-
-  generate_secret             = true
+  generate_secret               = true
   prevent_user_existence_errors = "ENABLED"
-  enable_token_revocation     = true
-  refresh_token_validity      = 30
-  access_token_validity       = 1
-  id_token_validity           = 1
+  enable_token_revocation       = true
+  refresh_token_validity        = 30
+  access_token_validity         = 1
+  id_token_validity             = 1
 
   token_validity_units {
     refresh_token = "days"
@@ -117,21 +93,21 @@ resource "aws_cognito_user_pool_client" "apps" {
   ]
 }
 
-resource "aws_cognito_user_group" "groups" {
+resource "aws_cognito_user_group" "lanapp" {
   for_each = local.cognito_groups
 
   name         = each.key
-  user_pool_id = aws_cognito_user_pool.mexp.id
+  user_pool_id = aws_cognito_user_pool.lanapp.id
   description  = each.value.description
 }
 
 # =============================================================================
-# IAM — ECS task roles that run Cognito BFF (admin user APIs)
+# IAM — lanapp-ui ECS task role (Cognito BFF)
 # =============================================================================
 
-data "aws_iam_policy_document" "cognito_idp_admin" {
+data "aws_iam_policy_document" "cognito_idp_lanapp" {
   statement {
-    sid    = "CognitoUserPoolAdmin"
+    sid    = "CognitoUserPoolLanapp"
     effect = "Allow"
     actions = [
       "cognito-idp:AdminAddUserToGroup",
@@ -152,16 +128,16 @@ data "aws_iam_policy_document" "cognito_idp_admin" {
       "cognito-idp:ListUsers",
       "cognito-idp:RespondToAuthChallenge",
     ]
-    resources = [aws_cognito_user_pool.mexp.arn]
+    resources = [aws_cognito_user_pool.lanapp.arn]
   }
 }
 
-resource "aws_iam_policy" "cognito_idp_admin" {
-  name        = "mexp-cognito-idp-admin"
-  description = "Cognito User Pool admin + auth flows for suite app BFFs"
-  policy      = data.aws_iam_policy_document.cognito_idp_admin.json
+resource "aws_iam_policy" "cognito_idp_lanapp" {
+  name        = "mexp-cognito-idp-lanapp"
+  description = "Cognito User Pool admin + auth flows for lanapp-ui BFF"
+  policy      = data.aws_iam_policy_document.cognito_idp_lanapp.json
 
-  tags = merge(var.tags_base, { app = "suite" })
+  tags = merge(var.tags_base, { app = "lanapp" })
 }
 
 resource "aws_iam_role" "lanapp_front_task_role" {
@@ -181,45 +157,5 @@ resource "aws_iam_role" "lanapp_front_task_role" {
 
 resource "aws_iam_role_policy_attachment" "lanapp_front_cognito" {
   role       = aws_iam_role.lanapp_front_task_role.name
-  policy_arn = aws_iam_policy.cognito_idp_admin.arn
-}
-
-resource "aws_iam_role" "admin_front_task_role" {
-  name = "mexp-admin-front-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "ecs-tasks.amazonaws.com" }
-    }]
-  })
-
-  tags = merge(var.tags_base, { app = "admin" })
-}
-
-resource "aws_iam_role_policy_attachment" "admin_front_cognito" {
-  role       = aws_iam_role.admin_front_task_role.name
-  policy_arn = aws_iam_policy.cognito_idp_admin.arn
-}
-
-resource "aws_iam_role" "myxperiences_front_task_role" {
-  name = "mexp-myxperiences-front-task-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "ecs-tasks.amazonaws.com" }
-    }]
-  })
-
-  tags = merge(var.tags_base, { app = "xperiences" })
-}
-
-resource "aws_iam_role_policy_attachment" "myxperiences_front_cognito" {
-  role       = aws_iam_role.myxperiences_front_task_role.name
-  policy_arn = aws_iam_policy.cognito_idp_admin.arn
+  policy_arn = aws_iam_policy.cognito_idp_lanapp.arn
 }

@@ -1,40 +1,40 @@
 # =============================================================================
-# Cognito outputs — use in ECS .env files per app
+# Cognito outputs — Lanapp ECS env
 # =============================================================================
 
 output "cognito_user_pool_id" {
-  description = "Shared Myxperiences Cognito User Pool ID"
-  value       = aws_cognito_user_pool.mexp.id
+  description = "Lanapp Cognito User Pool ID"
+  value       = aws_cognito_user_pool.lanapp.id
 }
 
 output "cognito_user_pool_arn" {
-  description = "Shared Myxperiences Cognito User Pool ARN"
-  value       = aws_cognito_user_pool.mexp.arn
+  description = "Lanapp Cognito User Pool ARN"
+  value       = aws_cognito_user_pool.lanapp.arn
 }
 
 output "cognito_issuer_url" {
-  description = "JWT issuer URL for token validation"
-  value       = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.mexp.id}"
+  description = "JWT issuer URL for lanapp API token validation"
+  value       = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.lanapp.id}"
 }
 
 output "cognito_domain" {
   description = "Cognito hosted UI domain prefix"
-  value       = aws_cognito_user_pool_domain.mexp.domain
+  value       = aws_cognito_user_pool_domain.lanapp.domain
 }
 
-output "cognito_client_ids" {
-  description = "App client IDs (map: lanapp, admin, myxperiences)"
-  value       = { for k, v in aws_cognito_user_pool_client.apps : k => v.id }
+output "cognito_client_id" {
+  description = "Lanapp app client ID (UI BFF + API JWT validation)"
+  value       = aws_cognito_user_pool_client.lanapp.id
 }
 
-output "cognito_client_secrets" {
-  description = "App client secrets — sensitive; store in SSM/Secrets Manager for ECS"
-  value       = { for k, v in aws_cognito_user_pool_client.apps : k => v.client_secret }
+output "cognito_client_secret" {
+  description = "Lanapp app client secret — sensitive; use in ECS .env_frontend"
+  value       = aws_cognito_user_pool_client.lanapp.client_secret
   sensitive   = true
 }
 
 output "cognito_groups" {
-  description = "Available group names for RBAC"
+  description = "Lanapp RBAC groups"
   value       = keys(local.cognito_groups)
 }
 
