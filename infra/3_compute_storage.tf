@@ -65,7 +65,7 @@ resource "aws_lb_target_group" "admin_back_tg" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
-  health_check { path = "/api" }
+  health_check { path = "/api/health" }
   tags = merge(var.tags_base, { app = "admin" })
 }
 
@@ -163,6 +163,67 @@ resource "aws_cloudwatch_log_group" "admin_back_logs" {
   tags = merge(var.tags_base, {
     app = "admin"
   })
+}
+
+resource "aws_cloudwatch_log_group" "admin_front_logs" {
+  name              = "/ecs/mexp-admin-front"
+  retention_in_days = 7
+
+  tags = merge(var.tags_base, {
+    app = "admin"
+  })
+}
+
+# =================================================================
+# ROL DE TAREA (Task Role) PARA ADMIN-BACK
+# =================================================================
+
+resource "aws_iam_role" "admin_task_role" {
+  name = "mexp-admin-back-task-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      }
+    }
+  ]
+}
+EOF
+
+  tags = merge(var.tags_base, { app = "admin" })
+}
+
+resource "aws_iam_policy" "admin_s3_policy" {
+  name        = "mexp-admin-s3-policy"
+  description = "Permite al contenedor admin conectarse a su bucket de S3"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ]
+      Resource = [
+        aws_s3_bucket.admin_bucket.arn,
+        "${aws_s3_bucket.admin_bucket.arn}/*"
+      ]
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "admin_s3_attach" {
+  role       = aws_iam_role.admin_task_role.name
+  policy_arn = aws_iam_policy.admin_s3_policy.arn
 }
 
 # =================================================================

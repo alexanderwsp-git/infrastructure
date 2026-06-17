@@ -1,0 +1,49 @@
+{
+  "family": "mexp-admin-front",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::991795763909:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "admin-ui",
+      "image": "991795763909.dkr.ecr.us-east-1.amazonaws.com/mexp-admin-front:$IMAGE_TAG",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "PORT", "value": "$PORT" },
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "HOSTNAME", "value": "0.0.0.0" },
+        { "name": "VITE_API_SERVICE", "value": "$VITE_API_SERVICE" },
+        {
+          "name": "VITE_API_INTERNAL_API_KEY",
+          "value": "$VITE_API_INTERNAL_API_KEY"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mexp-admin-front",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1:3000/',r=>process.exit(r.statusCode>=200&&r.statusCode<400?0:1)).on('error',()=>process.exit(1))\""
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

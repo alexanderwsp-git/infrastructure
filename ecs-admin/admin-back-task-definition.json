@@ -1,0 +1,73 @@
+{
+  "family": "mexp-admin-back",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::991795763909:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::991795763909:role/mexp-admin-back-task-role",
+  "containerDefinitions": [
+    {
+      "name": "admin-api",
+      "image": "991795763909.dkr.ecr.us-east-1.amazonaws.com/mexp-admin-back:$IMAGE_TAG",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "PORT", "value": "$PORT" },
+        { "name": "NODE_ENV", "value": "$NODE_ENV" },
+        { "name": "POSTGRES_DB", "value": "$POSTGRES_DB" },
+        { "name": "POSTGRES_USER", "value": "$POSTGRES_USER" },
+        { "name": "POSTGRES_PASSWORD", "value": "$POSTGRES_PASSWORD" },
+        { "name": "POSTGRES_HOST", "value": "$POSTGRES_HOST" },
+        { "name": "POSTGRES_PORT", "value": "$POSTGRES_PORT" },
+        { "name": "JWT_SEED", "value": "$JWT_SEED" },
+        { "name": "MAILER_HOST", "value": "$MAILER_HOST" },
+        { "name": "MAILER_PORT", "value": "$MAILER_PORT" },
+        { "name": "MAILER_USER", "value": "$MAILER_USER" },
+        { "name": "MAILER_PASS", "value": "$MAILER_PASS" },
+        { "name": "MAILER_FROM", "value": "$MAILER_FROM" },
+        { "name": "DOMINIO_EXPERIENCES", "value": "$DOMINIO_EXPERIENCES" },
+        { "name": "SYNCALTER", "value": "$SYNCALTER" },
+        { "name": "AWS_BUCKET_NAME", "value": "$AWS_BUCKET_NAME" },
+        { "name": "AWS_BUCKET_REGION", "value": "$AWS_BUCKET_REGION" },
+        { "name": "INTERNAL_API_KEY", "value": "$INTERNAL_API_KEY" },
+        {
+          "name": "BACKEND_MYXPERIENCES_URL",
+          "value": "$BACKEND_MYXPERIENCES_URL"
+        },
+        { "name": "NGTECO_USERNAME", "value": "$NGTECO_USERNAME" },
+        { "name": "NGTECO_PASSWORD", "value": "$NGTECO_PASSWORD" },
+        { "name": "NGTECO_API_URL", "value": "$NGTECO_API_URL" },
+        { "name": "GOOGLE_SHEET_ID", "value": "$GOOGLE_SHEET_ID" },
+        {
+          "name": "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+          "value": "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
+        },
+        { "name": "GOOGLE_PRIVATE_KEY", "value": "$GOOGLE_PRIVATE_KEY" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mexp-admin-back",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}
