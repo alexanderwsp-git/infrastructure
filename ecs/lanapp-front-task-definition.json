@@ -5,6 +5,7 @@
     "cpu": "512",
     "memory": "1024",
     "executionRoleArn": "arn:aws:iam::991795763909:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::991795763909:role/mexp-lanapp-front-task-role",
     "containerDefinitions": [
       {
         "name": "lanapp-ui",
@@ -19,7 +20,11 @@
         "environment": [
           { "name": "PORT", "value": "$PORT" },
           { "name": "NODE_ENV", "value": "production" },
-          { "name": "HOSTNAME", "value": "0.0.0.0" }
+          { "name": "HOSTNAME", "value": "0.0.0.0" },
+          { "name": "AWS_REGION", "value": "$AWS_REGION" },
+          { "name": "COGNITO_USER_POOL_ID", "value": "$COGNITO_USER_POOL_ID" },
+          { "name": "COGNITO_CLIENT_ID", "value": "$COGNITO_CLIENT_ID" },
+          { "name": "COGNITO_CLIENT_SECRET", "value": "$COGNITO_CLIENT_SECRET" }
         ],
         "logConfiguration": {
           "logDriver": "awslogs",
@@ -42,4 +47,3 @@
       }
     ]
   }
-  

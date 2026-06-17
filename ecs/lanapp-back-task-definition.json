@@ -24,7 +24,10 @@
           { "name": "DATABASE_SSL", "value": "$DATABASE_SSL" },
           { "name": "DATABASE_SCHEMA", "value": "$DATABASE_SCHEMA" },
           { "name": "API_PREFIX", "value": "$API_PREFIX" },
-          { "name": "SKIP_AUTH", "value": "$SKIP_AUTH" }
+          { "name": "SKIP_AUTH", "value": "$SKIP_AUTH" },
+          { "name": "COGNITO_USER_POOL_ID", "value": "$COGNITO_USER_POOL_ID" },
+          { "name": "COGNITO_CLIENT_ID", "value": "$COGNITO_CLIENT_ID" },
+          { "name": "COGNITO_APP_GROUP_PREFIX", "value": "lanapp_" }
         ],
         "logConfiguration": {
           "logDriver": "awslogs",
