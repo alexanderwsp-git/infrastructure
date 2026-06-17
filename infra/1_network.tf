@@ -95,9 +95,18 @@ resource "aws_security_group" "containers_sg" {
   description = "Solo permite trafico desde el ALB central"
   vpc_id      = aws_vpc.main.id
 
+  # Frontend (port 3000)
   ingress {
     from_port       = 3000
     to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
+  # Backend (port 4000)
+  ingress {
+    from_port       = 4000
+    to_port         = 4000
     protocol        = "tcp"
     security_groups = [aws_security_group.alb_sg.id]
   }
