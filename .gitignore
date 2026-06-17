@@ -22,6 +22,8 @@ override.tf.json
 .terraform/
 .terraform.lock.hcl
 
+*-var.json
+
 # ECS env files with real values (use .template versions instead)
 ecs-admin/.env_admin_backend
 ecs-admin/.env_admin_frontend

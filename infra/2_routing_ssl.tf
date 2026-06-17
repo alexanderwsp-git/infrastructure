@@ -3,7 +3,10 @@ data "aws_route53_zone" "primary" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "*.${var.domain_name}"
+  domain_name       = var.domain_name
+  subject_alternative_names = [
+    "*.${var.domain_name}"
+  ]
   validation_method = "DNS"
 
   lifecycle {
@@ -15,18 +18,19 @@ resource "aws_acm_certificate" "cert" {
 
 resource "aws_route53_record" "cert_validation" {
   for_each = {
-    for dvo in tolist(aws_acm_certificate.cert.domain_validation_options) : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      domain_name             = dvo.domain_name
+      resource_record_name    = dvo.resource_record_name
+      resource_record_value   = dvo.resource_record_value
+      resource_record_type    = dvo.resource_record_type
     }
   }
 
   allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
+  name            = each.value.resource_record_name
+  records         = [each.value.resource_record_value]
   ttl             = 60
-  type            = each.value.type
+  type            = each.value.resource_record_type
   zone_id         = data.aws_route53_zone.primary.zone_id
 }
 
@@ -77,53 +81,53 @@ resource "aws_lb_listener" "http_redirect" {
 }
 
 # =================================================================
-# COMENTADO PARA PROTEGER PRODUCCIÓN ACTUAL (APP 1 - MYXPERIENCES)
+# MYXPERIENCES ROUTING (APP 1)
 # =================================================================
-# resource "aws_lb_listener_rule" "myxperiences_front" {
-#   listener_arn = aws_lb_listener.https.arn
-#   priority     = 10
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.myxperiences_front_tg.arn
-#   }
-#   condition {
-#     host_header { values = [var.domain_name] }
-#   }
-# }
-#
-# resource "aws_lb_listener_rule" "myxperiences_back" {
-#   listener_arn = aws_lb_listener.https.arn
-#   priority     = 20
-#   action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.myxperiences_back_tg.arn
-#   }
-#   condition {
-#     host_header { values = ["api.${var.domain_name}"] }
-#   }
-# }
-#
-# resource "aws_route53_record" "myxperiences_root_dns" {
-#   zone_id = data.aws_route53_zone.primary.zone_id
-#   name    = var.domain_name
-#   type    = "A"
-#   alias {
-#     name                   = aws_lb.shared_alb.dns_name
-#     zone_id                = aws_lb.shared_alb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
-#
-# resource "aws_route53_record" "myxperiences_api_dns" {
-#   zone_id = data.aws_route53_zone.primary.zone_id
-#   name    = "api.${var.domain_name}"
-#   type    = "A"
-#   alias {
-#     name                   = aws_lb.shared_alb.dns_name
-#     zone_id                = aws_lb.shared_alb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
+resource "aws_lb_listener_rule" "myxperiences_front" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 10
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.myxperiences_front_tg.arn
+  }
+  condition {
+    host_header { values = [var.domain_name] }
+  }
+}
+
+resource "aws_lb_listener_rule" "myxperiences_back" {
+  listener_arn = aws_lb_listener.https.arn
+  priority     = 20
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.myxperiences_back_tg.arn
+  }
+  condition {
+    host_header { values = ["api.${var.domain_name}"] }
+  }
+}
+
+resource "aws_route53_record" "myxperiences_root_dns" {
+  zone_id = data.aws_route53_zone.primary.zone_id
+  name    = var.domain_name
+  type    = "A"
+  alias {
+    name                   = aws_lb.shared_alb.dns_name
+    zone_id                = aws_lb.shared_alb.zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "myxperiences_api_dns" {
+  zone_id = data.aws_route53_zone.primary.zone_id
+  name    = "api.${var.domain_name}"
+  type    = "A"
+  alias {
+    name                   = aws_lb.shared_alb.dns_name
+    zone_id                = aws_lb.shared_alb.zone_id
+    evaluate_target_health = true
+  }
+}
 
 # =================================================================
 # ACTIVOS (APP 2 Y APP 3 - LANAPP Y ADMIN)

@@ -1,0 +1,73 @@
+{
+  "family": "mexp-myxperiences-back",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::991795763909:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::991795763909:role/mexp-myxperiences-back-task-role",
+  "containerDefinitions": [
+    {
+      "name": "myxperiences-api",
+      "image": "991795763909.dkr.ecr.us-east-1.amazonaws.com/mexp-myxperiences-back:$IMAGE_TAG",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 4000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "PORT", "value": "$PORT" },
+        { "name": "NODE_ENV", "value": "$NODE_ENV" },
+        { "name": "POSTGRES_PORT", "value": "$POSTGRES_PORT" },
+        { "name": "POSTGRES_DB", "value": "$POSTGRES_DB" },
+        { "name": "POSTGRES_USER", "value": "$POSTGRES_USER" },
+        { "name": "POSTGRES_PASSWORD", "value": "$POSTGRES_PASSWORD" },
+        { "name": "POSTGRES_HOST", "value": "$POSTGRES_HOST" },
+        { "name": "POSTGRES_SCHEMA", "value": "$POSTGRES_SCHEMA" },
+        { "name": "SECRET_JWT_SEED", "value": "$SECRET_JWT_SEED" },
+        { "name": "MAILER_HOST", "value": "$MAILER_HOST" },
+        { "name": "MAILER_PORT", "value": "$MAILER_PORT" },
+        { "name": "MAILER_USER", "value": "$MAILER_USER" },
+        { "name": "MAILER_PASS", "value": "$MAILER_PASS" },
+        { "name": "MAILER_FRONT", "value": "$MAILER_FRONT" },
+        { "name": "DOMINIO_EXPERIENCES", "value": "$DOMINIO_EXPERIENCES" },
+        { "name": "AWS_BUCKET_NAME", "value": "$AWS_BUCKET_NAME" },
+        { "name": "AWS_BUCKET_REGION", "value": "$AWS_BUCKET_REGION" },
+        { "name": "AWS_ACCESS_KEY_ID", "value": "$AWS_ACCESS_KEY_ID" },
+        { "name": "AWS_SECRET_ACCESS_KEY", "value": "$AWS_SECRET_ACCESS_KEY" },
+        { "name": "PROD", "value": "$PROD" },
+        { "name": "SYNCALTER", "value": "$SYNCALTER" },
+        { "name": "SYNCFORCE", "value": "$SYNCFORCE" },
+        { "name": "MAKE_WEBHOOK_URL", "value": "$MAKE_WEBHOOK_URL" },
+        { "name": "BACKEND_ADMIN_URL", "value": "$BACKEND_ADMIN_URL" },
+        { "name": "INTERNAL_API_KEY", "value": "$INTERNAL_API_KEY" },
+        { "name": "GOOGLE_SHEET_ID", "value": "$GOOGLE_SHEET_ID" },
+        {
+          "name": "GOOGLE_SERVICE_ACCOUNT_EMAIL",
+          "value": "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
+        },
+        { "name": "GOOGLE_PRIVATE_KEY", "value": "$GOOGLE_PRIVATE_KEY" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mexp-myxperiences-back",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://127.0.0.1:4000/api/healthCheck/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

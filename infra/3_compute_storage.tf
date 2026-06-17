@@ -11,11 +11,21 @@ resource "aws_lb_target_group" "myxperiences_front_tg" {
 
 resource "aws_lb_target_group" "myxperiences_back_tg" {
   name        = "mexp-myxperiences-back-tg"
-  port        = 3000
+  port        = 4000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
-  health_check { path = "/api" }
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    path                = "/api/healthCheck/health"
+    matcher             = "200"
+    port                = "4000"
+    protocol            = "HTTP"
+  }
   tags = merge(var.tags_base, { app = "xperiences" })
 }
 
@@ -136,6 +146,15 @@ resource "aws_cloudwatch_log_group" "myxperiences_back_logs" {
   })
 }
 
+resource "aws_cloudwatch_log_group" "myxperiences_front_logs" {
+  name              = "/ecs/mexp-myxperiences-front"
+  retention_in_days = 7
+
+  tags = merge(var.tags_base, {
+    app = "xperiences"
+  })
+}
+
 # Grupo de Logs para la App de Ovejas (Lanapp)
 resource "aws_cloudwatch_log_group" "lanapp_back_logs" {
   name              = "/ecs/mexp-lanapp-back"
@@ -163,6 +182,58 @@ resource "aws_cloudwatch_log_group" "admin_back_logs" {
   tags = merge(var.tags_base, {
     app = "admin"
   })
+}
+
+# =================================================================
+# ROL DE TAREA (Task Role) PARA MYXPERIENCES-BACK
+# =================================================================
+
+resource "aws_iam_role" "myxperiences_task_role" {
+  name = "mexp-myxperiences-back-task-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      }
+    }
+  ]
+}
+EOF
+
+  tags = merge(var.tags_base, { app = "xperiences" })
+}
+
+resource "aws_iam_policy" "myxperiences_s3_policy" {
+  name        = "mexp-myxperiences-s3-policy"
+  description = "Permite al contenedor myxperiences conectarse a su bucket de S3"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ]
+      Resource = [
+        aws_s3_bucket.myxperiences_bucket.arn,
+        "${aws_s3_bucket.myxperiences_bucket.arn}/*"
+      ]
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "myxperiences_s3_attach" {
+  role       = aws_iam_role.myxperiences_task_role.name
+  policy_arn = aws_iam_policy.myxperiences_s3_policy.arn
 }
 
 resource "aws_cloudwatch_log_group" "admin_front_logs" {
