@@ -60,32 +60,32 @@ on:
       - main
       - develop
     paths:
-      - 'Backend-Admin/**'
-      - 'Frontend-Admin/**'
-      - '.github/workflows/deploy-admin.yml'
+      - "Backend-Admin/**"
+      - "Frontend-Admin/**"
+      - ".github/workflows/deploy-admin.yml"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
-      
+
       - name: Install Make
         run: |
           sudo apt-get update
           sudo apt-get install -y make jq
-      
+
       - name: Deploy Admin Services
         run: |
           cd infrastructure
@@ -103,32 +103,32 @@ on:
       - main
       - develop
     paths:
-      - 'Prueba/backend/**'
-      - 'Prueba/frontend/**'
-      - '.github/workflows/deploy-myxp.yml'
+      - "Prueba/backend/**"
+      - "Prueba/frontend/**"
+      - ".github/workflows/deploy-myxp.yml"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      
+
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
-      
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y make jq
-      
+
       - name: Deploy MyXperiences Services
         run: |
           cd infrastructure
@@ -222,6 +222,7 @@ fi
 ```
 
 **Uso:**
+
 ```bash
 chmod +x deploy-with-confirmation.sh
 ./deploy-with-confirmation.sh admin-back
@@ -248,16 +249,16 @@ cd "$SCRIPT_DIR"
 notify_slack() {
     local status="$1"
     local message="$2"
-    
+
     if [ -z "$SLACK_WEBHOOK" ]; then
         return
     fi
-    
+
     local color="good"  # verde
     if [ "$status" = "failure" ]; then
         color="danger"  # rojo
     fi
-    
+
     curl -X POST "$SLACK_WEBHOOK" \
         -H 'Content-type: application/json' \
         --data "{
@@ -274,11 +275,11 @@ notify_slack() {
 notify_email() {
     local status="$1"
     local message="$2"
-    
+
     if [ -z "$EMAIL" ]; then
         return
     fi
-    
+
     aws sns publish \
         --topic-arn "arn:aws:sns:us-east-1:991795763909:deployment-notifications" \
         --subject "Deployment $status: $SERVICE" \
@@ -348,7 +349,7 @@ if make deploy-$SERVICE; then
     echo ""
     echo "✅ Deployment completado"
     echo "⏳ Esperando que el servicio esté healthy ($TIMEOUT segundos)..."
-    
+
     # Esperar a que las tareas estén running
     START_TIME=$(date +%s)
     while true; do
@@ -358,28 +359,28 @@ if make deploy-$SERVICE; then
             --region us-east-1 \
             --query 'services[0].runningCount' \
             --output text)
-        
+
         if [ "$RUNNING" -gt 0 ]; then
             echo "✅ Servicio está running"
             break
         fi
-        
+
         ELAPSED=$(($(date +%s) - START_TIME))
         if [ $ELAPSED -gt $TIMEOUT ]; then
             echo ""
             echo "❌ Timeout esperando servicio"
             echo "🔄 Iniciando rollback a revisión $OLD_REVISION..."
-            
+
             aws ecs update-service \
                 --cluster "$CLUSTER" \
                 --service "$SERVICE_NAME" \
                 --task-definition "$TASK_FAMILY:$OLD_REVISION" \
                 --region us-east-1
-            
+
             echo "✅ Rollback completado"
             exit 1
         fi
-        
+
         sleep 5
     done
 else
@@ -510,6 +511,7 @@ fi
 ```
 
 **Activar:**
+
 ```bash
 chmod +x .git/hooks/post-commit
 ```
@@ -518,13 +520,13 @@ chmod +x .git/hooks/post-commit
 
 ## 📊 Comparativa de estrategias
 
-| Estrategia | Pros | Contras | Cuándo usar |
-|-----------|------|---------|-----------|
-| Manual | Control total | Requiere atención | Cambios críticos |
-| CI/CD (GitHub Actions) | Automático | Setup inicial | Deployments frecuentes |
-| Con confirmación | Seguro | Requiere respuesta | Producción |
-| Scheduled | Predictable | Menos flexible | Equipo distribuido |
-| Rollback automático | Seguro | Complejo | Alta disponibilidad |
+| Estrategia             | Pros          | Contras            | Cuándo usar            |
+| ---------------------- | ------------- | ------------------ | ---------------------- |
+| Manual                 | Control total | Requiere atención  | Cambios críticos       |
+| CI/CD (GitHub Actions) | Automático    | Setup inicial      | Deployments frecuentes |
+| Con confirmación       | Seguro        | Requiere respuesta | Producción             |
+| Scheduled              | Predictable   | Menos flexible     | Equipo distribuido     |
+| Rollback automático    | Seguro        | Complejo           | Alta disponibilidad    |
 
 ---
 

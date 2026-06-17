@@ -9,88 +9,95 @@ He creado una suite completa de automatización para **build, push y deployment*
 ## 📁 Archivos creados en `infrastructure/`
 
 ### 1. **`Makefile`** ⭐ (Principal)
-   - **Descripción**: Automatización completa con targets para build, push y deployment
-   - **Tamaño**: ~500 líneas
-   - **Targets principales**:
-     - `build-*`: Construir imágenes Docker
-     - `push-*`: Subir a ECR
-     - `deploy-*`: Build + Push + Update (completo)
-     - `update-*`: Solo actualizar servicios ECS
-     - `ecr-login/logout`: Autenticación AWS
-   - **Soporta**: Admin Backend/Frontend, MyXperiences Backend/Frontend
-   - **Uso**: `make help`, `make deploy-admin-back`
+
+- **Descripción**: Automatización completa con targets para build, push y deployment
+- **Tamaño**: ~500 líneas
+- **Targets principales**:
+  - `build-*`: Construir imágenes Docker
+  - `push-*`: Subir a ECR
+  - `deploy-*`: Build + Push + Update (completo)
+  - `update-*`: Solo actualizar servicios ECS
+  - `ecr-login/logout`: Autenticación AWS
+- **Soporta**: Admin Backend/Frontend, MyXperiences Backend/Frontend
+- **Uso**: `make help`, `make deploy-admin-back`
 
 ### 2. **`MAKEFILE_README.md`** 📖 (Documentación completa)
-   - **Secciones**:
-     - Requisitos e instalación
-     - Configuración
-     - Referencia de todos los comandos
-     - Flujos de trabajo típicos
-     - Customización
-     - Troubleshooting detallado
-     - Ejemplos avanzados
-     - Variables de entorno
-   - **Uso**: Lee primero para entender cómo funciona
+
+- **Secciones**:
+  - Requisitos e instalación
+  - Configuración
+  - Referencia de todos los comandos
+  - Flujos de trabajo típicos
+  - Customización
+  - Troubleshooting detallado
+  - Ejemplos avanzados
+  - Variables de entorno
+- **Uso**: Lee primero para entender cómo funciona
 
 ### 3. **`QUICK_START.md`** ⚡ (Guía rápida)
-   - **Duración**: 5 minutos
-   - **Contenido**:
-     - Prerequisitos rápidos
-     - 3 opciones de deploy
-     - Troubleshooting rápido
-     - Monitoreo de deployment
-     - Pro tips
-     - Checklist de primer deployment
-   - **Para**: Usuarios que quieren empezar YA
+
+- **Duración**: 5 minutos
+- **Contenido**:
+  - Prerequisitos rápidos
+  - 3 opciones de deploy
+  - Troubleshooting rápido
+  - Monitoreo de deployment
+  - Pro tips
+  - Checklist de primer deployment
+- **Para**: Usuarios que quieren empezar YA
 
 ### 4. **`ADVANCED_EXAMPLES.md`** 🚀 (Casos avanzados)
-   - **10 ejemplos incluidos**:
-     - Deploy selectivo con validaciones
-     - Integración GitHub Actions (2 workflows incluidos)
-     - Deploy con confirmación
-     - Deploy con notificaciones Slack/Email
-     - Deploy con rollback automático
-     - Deploy en horario específico
-     - Limpieza de imágenes
-     - Integración con Git hooks
-     - Debugging avanzado
-   - **Para**: Automatización profesional y CI/CD
+
+- **10 ejemplos incluidos**:
+  - Deploy selectivo con validaciones
+  - Integración GitHub Actions (2 workflows incluidos)
+  - Deploy con confirmación
+  - Deploy con notificaciones Slack/Email
+  - Deploy con rollback automático
+  - Deploy en horario específico
+  - Limpieza de imágenes
+  - Integración con Git hooks
+  - Debugging avanzado
+- **Para**: Automatización profesional y CI/CD
 
 ### 5. **`update-image-tags.sh`** 🔄 (Script auxiliar Bash)
-   - **Descripción**: Actualiza automáticamente IMAGE_TAG en todos los .env files
-   - **Uso**: 
-     ```bash
-     ./update-image-tags.sh              # Todos los servicios
-     ./update-image-tags.sh admin        # Solo Admin
-     ./update-image-tags.sh admin-back   # Solo Admin Backend
-     ```
-   - **Beneficio**: No necesitas actualizar manualmente los tags
+
+- **Descripción**: Actualiza automáticamente IMAGE_TAG en todos los .env files
+- **Uso**:
+  ```bash
+  ./update-image-tags.sh              # Todos los servicios
+  ./update-image-tags.sh admin        # Solo Admin
+  ./update-image-tags.sh admin-back   # Solo Admin Backend
+  ```
+- **Beneficio**: No necesitas actualizar manualmente los tags
 
 ### 6. **`update-image-tags.ps1`** 🔄 (Script auxiliar PowerShell)
-   - **Descripción**: Lo mismo que el script Bash pero para Windows/PowerShell
-   - **Uso**:
-     ```powershell
-     .\update-image-tags.ps1 -Type admin      # Solo Admin
-     .\update-image-tags.ps1 -Type all        # Todos
-     ```
-   - **Para**: Usuarios de Windows
+
+- **Descripción**: Lo mismo que el script Bash pero para Windows/PowerShell
+- **Uso**:
+  ```powershell
+  .\update-image-tags.ps1 -Type admin      # Solo Admin
+  .\update-image-tags.ps1 -Type all        # Todos
+  ```
+- **Para**: Usuarios de Windows
 
 ---
 
 ## 🎯 Servicios soportados
 
-| Servicio | Build | Push | Deploy | Update |
-|----------|-------|------|--------|--------|
-| Admin Backend | ✅ | ✅ | ✅ | ✅ |
-| Admin Frontend | ✅ | ✅ | ✅ | ✅ |
-| MyXperiences Backend | ✅ | ✅ | ✅ | ✅ |
-| MyXperiences Frontend | ✅ | ✅ | ✅ | ✅ |
+| Servicio              | Build | Push | Deploy | Update |
+| --------------------- | ----- | ---- | ------ | ------ |
+| Admin Backend         | ✅    | ✅   | ✅     | ✅     |
+| Admin Frontend        | ✅    | ✅   | ✅     | ✅     |
+| MyXperiences Backend  | ✅    | ✅   | ✅     | ✅     |
+| MyXperiences Frontend | ✅    | ✅   | ✅     | ✅     |
 
 ---
 
 ## 🚀 Flujo de trabajo (paso a paso)
 
 ### Opción 1: Deployment manual (más control)
+
 ```bash
 cd infrastructure
 
@@ -114,13 +121,16 @@ make update-admin-back
 ```
 
 ### Opción 2: Deploy completo automático (recomendado)
+
 ```bash
 cd infrastructure
 make deploy-admin-back
 ```
-*Hace todo automáticamente: build → push → update*
+
+_Hace todo automáticamente: build → push → update_
 
 ### Opción 3: Deploy múltiples servicios
+
 ```bash
 cd infrastructure
 make deploy-all-admin          # Admin (backend + frontend)
@@ -144,6 +154,7 @@ ADMIN_BACK_DIR := /ruta/personalizada/Backend-Admin
 ## ✅ Verificación de instalación
 
 Verifica que tienes todo:
+
 ```bash
 # Docker
 docker --version          # ✅ Debe mostrar versión
@@ -235,42 +246,49 @@ Prueba/
 ## 🎓 Ejemplos rápidos
 
 ### Deploy Admin Backend
+
 ```bash
 cd infrastructure
 make deploy-admin-back
 ```
 
 ### Deploy Admin Frontend
+
 ```bash
 cd infrastructure
 make deploy-admin-front
 ```
 
 ### Deploy MyXperiences Backend
+
 ```bash
 cd infrastructure
 make deploy-myxp-back
 ```
 
 ### Deploy MyXperiences Frontend
+
 ```bash
 cd infrastructure
 make deploy-myxp-front
 ```
 
 ### Deploy TODO
+
 ```bash
 cd infrastructure
 make deploy-all
 ```
 
 ### Solo BUILD (sin deploy)
+
 ```bash
 cd infrastructure
 make build-all
 ```
 
 ### Apenas PUSH (build ya está hecho)
+
 ```bash
 cd infrastructure
 make ecr-login
@@ -278,6 +296,7 @@ make push-admin-back
 ```
 
 ### Apenas UPDATE (imagen ya está en ECR)
+
 ```bash
 cd infrastructure
 ./update-image-tags.sh admin-back
