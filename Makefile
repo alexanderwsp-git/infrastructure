@@ -18,8 +18,8 @@ ECR_REGISTRY ?= $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 ROOT_DIR := $(shell pwd)
 ADMIN_BACK_DIR := ../Backend-Admin
 ADMIN_FRONT_DIR := ../Frontend-Admin
-MYXP_BACK_DIR := ../Prueba/backend
-MYXP_FRONT_DIR := ../Prueba/frontend
+MYXP_BACK_DIR := ../../Prueba/backend
+MYXP_FRONT_DIR := ../../Prueba/frontend
 
 # ============ NOMBRES DE IMAGENES ============
 ADMIN_BACK_REPO := mexp-admin-back
@@ -40,13 +40,13 @@ ADMIN_FRONT_TASK_TEMPLATE := ecs-admin/admin-front-task-definition.json
 
 # MyXperiences Backend
 MYXP_BACK_IMAGE := $(ECR_REGISTRY)/$(MYXP_BACK_REPO)
-MYXP_BACK_ENV_FILE := ecs/.env_backend
-MYXP_BACK_TASK_TEMPLATE := ecs/lanapp-back-task-definition.json
+MYXP_BACK_ENV_FILE := ecs-myxperiences/.env_myxperiences_backend
+MYXP_BACK_TASK_TEMPLATE := ecs-myxperiences/myxperiences-back-task-definition.json
 
 # MyXperiences Frontend
 MYXP_FRONT_IMAGE := $(ECR_REGISTRY)/$(MYXP_FRONT_REPO)
-MYXP_FRONT_ENV_FILE := ecs/.env_frontend
-MYXP_FRONT_TASK_TEMPLATE := ecs/lanapp-front-task-definition.json
+MYXP_FRONT_ENV_FILE := ecs-myxperiences/.env_myxperiences_frontend
+MYXP_FRONT_TASK_TEMPLATE := ecs-myxperiences/myxperiences-front-task-definition.json
 
 # ============ FUNCIONES ÚTILES ============
 define get_image_tag
@@ -191,22 +191,26 @@ push-myxp-front: ecr-login
 .PHONY: update-admin-back
 update-admin-back:
 	$(call print_section,🚀 UPDATING ADMIN BACKEND SERVICE)
+	@bash update-env-tag.sh ecs-admin/.env_admin_backend.template $(ADMIN_BACK_DIR) || exit 1
 	@cd ecs-admin && bash update-admin-backend.sh || exit 1
 
 .PHONY: update-admin-front
 update-admin-front:
 	$(call print_section,🚀 UPDATING ADMIN FRONTEND SERVICE)
+	@bash update-env-tag.sh ecs-admin/.env_admin_frontend.template $(ADMIN_FRONT_DIR) || exit 1
 	@cd ecs-admin && bash update-admin-frontend.sh || exit 1
 
 .PHONY: update-myxp-back
 update-myxp-back:
 	$(call print_section,🚀 UPDATING MYXPERIENCES BACKEND SERVICE)
-	@cd ecs && bash update-backend.sh || exit 1
+	@bash update-env-tag.sh ecs-myxperiences/.env_myxperiences_backend $(MYXP_BACK_DIR) || exit 1
+	@cd ecs-myxperiences && bash update-myxperiences-backend.sh || exit 1
 
 .PHONY: update-myxp-front
 update-myxp-front:
 	$(call print_section,🚀 UPDATING MYXPERIENCES FRONTEND SERVICE)
-	@cd ecs && bash update-frontend.sh || exit 1
+	@bash update-env-tag.sh ecs-myxperiences/.env_myxperiences_frontend $(MYXP_FRONT_DIR) || exit 1
+	@cd ecs-myxperiences && bash update-myxperiences-frontend.sh || exit 1
 
 # ============ DEPLOY TARGETS (Build + Push + Update) ============
 .PHONY: deploy-admin-back

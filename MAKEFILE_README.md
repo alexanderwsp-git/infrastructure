@@ -44,7 +44,7 @@ infrastructure/
   ├─ ecs/
   ├─ ecs-admin/
   ├─ ../Backend-Admin/            # Backend Admin
-  ├─ ../Frontend-Admin/           # Frontend Admin  
+  ├─ ../Frontend-Admin/           # Frontend Admin
   ├─ ../Prueba/backend/           # MyXperiences Backend
   └─ ../Prueba/frontend/          # MyXperiences Frontend
 ```
@@ -141,6 +141,7 @@ make deploy-admin-back
 ```
 
 **Qué hace:**
+
 1. Build la imagen Docker del Backend Admin
 2. Se autentica en ECR (si es necesario)
 3. Push la imagen a ECR
@@ -191,6 +192,7 @@ MYXP_FRONT_DIR := /ruta/a/frontend
 ## 📝 Cómo funciona
 
 ### Build
+
 ```
 git rev-parse --short HEAD → Obtiene el hash corto de git
 docker build → Construye la imagen
@@ -198,11 +200,13 @@ docker tag → Etiqueta con el hash
 ```
 
 ### Push
+
 ```
 docker push → Sube a ECR con el hash y latest
 ```
 
 ### Update (ECS)
+
 ```
 Copia template → Reemplaza $IMAGE_TAG con hash
 Reemplaza variables de .env → Genera JSON válido
@@ -232,22 +236,29 @@ IMAGE_TAG=$(git -C <REPO> rev-parse --short HEAD)
 ## 🐛 Troubleshooting
 
 ### "command not found: make"
+
 **Solución**: Instala make o usa WSL en Windows
 
 ### "jq: command not found"
+
 **Solución**: `sudo apt-get install jq` (requerido por los scripts de update)
 
 ### Error de autenticación ECR
+
 **Solución**: Ejecuta `make ecr-login` primero
 
 ### Docker build falla
+
 **Verificar**:
+
 - Docker está corriendo: `docker ps`
 - Dockerfile existe en la ruta correcta
 - Archivos de dependencias (.env, package.json, etc.) existen
 
 ### ECS update falla
+
 **Verificar**:
+
 - AWS CLI está configurado: `aws sts get-caller-identity`
 - Tienes permisos IAM para ECS
 - Cluster y servicio existen: `aws ecs list-services --cluster mexp-apps-shared-cluster`
@@ -289,21 +300,21 @@ aws logs tail /ecs/mexp-admin-back --follow
 
 ## 📚 Archivos involucrados
 
-| Archivo | Propósito |
-|---------|-----------|
-| `Makefile` | Automatización (este archivo) |
-| `ecs-admin/update-admin-backend.sh` | Script de update para Admin Backend |
-| `ecs-admin/update-admin-frontend.sh` | Script de update para Admin Frontend |
-| `ecs/update-backend.sh` | Script de update para MyXp Backend |
-| `ecs/update-frontend.sh` | Script de update para MyXp Frontend |
-| `.env_admin_backend.template` | Variables de Admin Backend |
-| `.env_admin_frontend.template` | Variables de Admin Frontend |
-| `.env_backend` | Variables de MyXp Backend |
-| `.env_frontend` | Variables de MyXp Frontend |
-| `admin-back-task-definition.json` | Plantilla de ECS Task para Admin Backend |
-| `admin-front-task-definition.json` | Plantilla de ECS Task para Admin Frontend |
-| `lanapp-back-task-definition.json` | Plantilla de ECS Task para MyXp Backend |
-| `lanapp-front-task-definition.json` | Plantilla de ECS Task para MyXp Frontend |
+| Archivo                              | Propósito                                 |
+| ------------------------------------ | ----------------------------------------- |
+| `Makefile`                           | Automatización (este archivo)             |
+| `ecs-admin/update-admin-backend.sh`  | Script de update para Admin Backend       |
+| `ecs-admin/update-admin-frontend.sh` | Script de update para Admin Frontend      |
+| `ecs/update-backend.sh`              | Script de update para MyXp Backend        |
+| `ecs/update-frontend.sh`             | Script de update para MyXp Frontend       |
+| `.env_admin_backend.template`        | Variables de Admin Backend                |
+| `.env_admin_frontend.template`       | Variables de Admin Frontend               |
+| `.env_backend`                       | Variables de MyXp Backend                 |
+| `.env_frontend`                      | Variables de MyXp Frontend                |
+| `admin-back-task-definition.json`    | Plantilla de ECS Task para Admin Backend  |
+| `admin-front-task-definition.json`   | Plantilla de ECS Task para Admin Frontend |
+| `lanapp-back-task-definition.json`   | Plantilla de ECS Task para MyXp Backend   |
+| `lanapp-front-task-definition.json`  | Plantilla de ECS Task para MyXp Frontend  |
 
 ## 🚨 Notas importantes
 
@@ -314,6 +325,7 @@ aws logs tail /ecs/mexp-admin-back --follow
 3. **Downtime**: Con `--force-new-deployment`, habrá un breve downtime mientras ECS reemplaza la tarea. Usa Blue/Green deployments si necesitas zero-downtime.
 
 4. **Rollback**: Si algo falla, puedes hacer rollback manualmente:
+
    ```bash
    aws ecs update-service \
      --cluster mexp-apps-shared-cluster \

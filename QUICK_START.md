@@ -3,6 +3,7 @@
 ## 🚀 5 minutos para tu primer deploy
 
 ### Prerequisitos rápidos
+
 ```bash
 # Verificar que tienes todo
 docker --version          # ✅ Docker
@@ -28,12 +29,14 @@ make deploy-admin-back
 ```
 
 **¿Qué hace?**
+
 1. ✅ Build imagen Docker
 2. ✅ Push a AWS ECR
 3. ✅ Actualiza servicio en ECS
 4. ⏳ ~3-5 minutos
 
 **Espera a ver:**
+
 ```
 ✅ Build completado: a1b2c3d
 ✅ Autenticación exitosa en ECR
@@ -69,17 +72,21 @@ make deploy-all
 ## 🛠️ Troubleshooting rápido
 
 ### ❌ "command not found: make"
+
 **Solución Windows:**
+
 - Usa WSL o Git Bash
 - Ejecuta desde terminal WSL
 
 **Solución macOS/Linux:**
+
 ```bash
 brew install make  # macOS
 apt-get install make  # Linux
 ```
 
 ### ❌ "Docker daemon is not running"
+
 ```bash
 # Windows: abre Docker Desktop
 # macOS: brew services start docker
@@ -87,18 +94,22 @@ apt-get install make  # Linux
 ```
 
 ### ❌ "AWS credentials not configured"
+
 ```bash
 aws configure
 # Ingresa: Access Key ID, Secret Access Key, Region (us-east-1), Output (json)
 ```
 
 ### ❌ "jq: command not found"
+
 En WSL:
+
 ```bash
 sudo apt-get install -y jq
 ```
 
 ### ❌ Error en push a ECR
+
 ```bash
 # Reautenticarse
 make ecr-login
@@ -112,12 +123,14 @@ make deploy-admin-back
 ## 📊 Monitorear deployment
 
 ### Mientras se despliega
+
 ```bash
 # En otra terminal, ver logs de ECS
 aws logs tail /ecs/mexp-admin-back --follow
 ```
 
 ### Después del deployment
+
 ```bash
 # Ver estado del servicio
 aws ecs describe-services \
@@ -150,6 +163,7 @@ aws ecs update-service \
 ## 💡 Pro Tips
 
 ### Actualizar IMAGE_TAG automáticamente
+
 ```bash
 # Script bash/shell
 ./update-image-tags.sh admin
@@ -159,12 +173,14 @@ aws ecs update-service \
 ```
 
 ### Ver configuración de tu setup
+
 ```bash
 make info
 make show-tags
 ```
 
 ### Limpiar imágenes locales
+
 ```bash
 make clean     # Limpia imágenes
 make prune      # Limpia imágenes + Docker system prune
@@ -200,6 +216,7 @@ make deploy-admin-back
 ## 📚 Documentación completa
 
 Lee [MAKEFILE_README.md](./MAKEFILE_README.md) para:
+
 - Configuración avanzada
 - Todos los comandos disponibles
 - Customización
