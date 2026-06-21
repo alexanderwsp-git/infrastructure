@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=deploy-flags.sh
+source "$SCRIPT_DIR/deploy-flags.sh"
+
 REGION="us-east-1"
 CLUSTER_NAME="mexp-apps-shared-cluster"
 SERVICE_NAME="mexp-lanapp-back-service"
@@ -58,6 +62,9 @@ aws ecs update-service \
   --cluster "$CLUSTER_NAME" \
   --service "$SERVICE_NAME" \
   --task-definition "$TASK_FAMILY" \
+  --desired-count "$ECS_DESIRED_COUNT" \
+  --health-check-grace-period-seconds "$ECS_HEALTH_CHECK_GRACE_PERIOD" \
+  --deployment-configuration "$ECS_DEPLOYMENT_CONFIGURATION" \
   --force-new-deployment \
   --region "$REGION"
 

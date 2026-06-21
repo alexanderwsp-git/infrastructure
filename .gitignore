@@ -31,6 +31,9 @@ ecs/.env_backend
 ecs/.env_frontend
 ecs-admin/*-task-definition-var.json
 ecs/*-task-definition-var.json
+ecs-lanapp/.env_backend
+ecs-lanapp/.env_frontend
+ecs-lanapp/*-task-definition-var.json
 
 # Ignore backup files created by editors
 *.swp

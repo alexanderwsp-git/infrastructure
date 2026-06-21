@@ -36,10 +36,12 @@ resource "aws_lb_target_group" "lanapp_front_tg" {
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
   health_check {
-    path                = "/"
-    matcher             = "200-399"
+    path                = "/api/health"
+    matcher             = "200"
     healthy_threshold   = 2
     unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
   }
   tags = merge(var.tags_base, { app = "awsp" })
 }
@@ -54,6 +56,8 @@ resource "aws_lb_target_group" "lanapp_back_tg" {
     path                = "/api/v1/lanapp/health"
     healthy_threshold   = 2
     unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
     matcher             = "200"
   }
   tags = merge(var.tags_base, { app = "awsp" })
