@@ -191,13 +191,11 @@ push-myxp-front: ecr-login
 .PHONY: update-admin-back
 update-admin-back:
 	$(call print_section,🚀 UPDATING ADMIN BACKEND SERVICE)
-	@bash update-env-tag.sh ecs-admin/.env_admin_backend.template $(ADMIN_BACK_DIR) || exit 1
 	@cd ecs-admin && bash update-admin-backend.sh || exit 1
 
 .PHONY: update-admin-front
 update-admin-front:
 	$(call print_section,🚀 UPDATING ADMIN FRONTEND SERVICE)
-	@bash update-env-tag.sh ecs-admin/.env_admin_frontend.template $(ADMIN_FRONT_DIR) || exit 1
 	@cd ecs-admin && bash update-admin-frontend.sh || exit 1
 
 .PHONY: update-myxp-back

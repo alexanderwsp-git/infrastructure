@@ -1,16 +1,38 @@
 #!/bin/bash
 # =================================================================
-# CONFIGURACIÓN BASE
+# Update Admin Backend Service in ECS
+# Compatible with Git Bash on Windows
 # =================================================================
+
+set -e
+
+# Configuration
 REGION="us-east-1"
 CLUSTER_NAME="mexp-apps-shared-cluster"
 SERVICE_NAME="mexp-admin-back-service"
 TASK_FAMILY="mexp-admin-back"
 TEMPLATE_FILE="admin-back-task-definition.json"
 OUTPUT_FILE="admin-back-task-definition-var.json"
+BACKEND_DIR="../../Backend-Admin"
 
-cp $TEMPLATE_FILE $OUTPUT_FILE
+# Function to escape special characters for sed replacement
+escape_sed_replacement() {
+  echo "$1" | sed 's/[&/\]/\\&/g'
+}
 
+# Function to replace a variable in the task definition
+replace_var() {
+  local var_name="$1"
+  local var_value="$2"
+  local escaped_value
+  escaped_value=$(escape_sed_replacement "$var_value")
+  sed -i "s|\$$var_name|$escaped_value|g" "$OUTPUT_FILE"
+}
+
+# Get IMAGE_TAG from git
+IMAGE_TAG=$(git -C "$BACKEND_DIR" rev-parse --short HEAD 2>/dev/null || echo "manual")
+
+# Load other variables from .env_admin_backend.template
 if [ -f .env_admin_backend.template ]; then
   set -a
   source .env_admin_backend.template
@@ -20,16 +42,13 @@ else
   exit 1
 fi
 
-escape_sed_replacement() {
-  printf '%s' "$1" | sed -e 's/[&|\\]/\\&/g'
-}
+echo "🔄 Starting admin backend update..."
+echo "📦 Using IMAGE_TAG: $IMAGE_TAG"
 
-replace_var() {
-  local key="$1"
-  local value="$2"
-  sed -i "s|\$$key|$(escape_sed_replacement "$value")|g" "$OUTPUT_FILE"
-}
+# Copy template to output file
+cp "$TEMPLATE_FILE" "$OUTPUT_FILE"
 
+# Replace variables
 replace_var "IMAGE_TAG" "$IMAGE_TAG"
 replace_var "PORT" "$PORT"
 replace_var "NODE_ENV" "$NODE_ENV"
