@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=deploy-flags.sh
+source "$SCRIPT_DIR/deploy-flags.sh"
+
 REGION="us-east-1"
 CLUSTER_NAME="mexp-apps-shared-cluster"
 SERVICE_NAME="mexp-lanapp-front-service"
@@ -22,6 +26,10 @@ sed -i "" "s|\$IMAGE_TAG|$IMAGE_TAG|g" $FILE_NAME_FRONTEND
 sed -i "" "s|\$PORT|$PORT|g" $FILE_NAME_FRONTEND
 sed -i "" "s|\$NODE_ENV|$NODE_ENV|g" $FILE_NAME_FRONTEND
 sed -i "" "s|\$HOSTNAME|$HOSTNAME|g" $FILE_NAME_FRONTEND
+sed -i "" "s|\$NEXT_PUBLIC_API_PREFIX|${NEXT_PUBLIC_API_PREFIX:-/api/v1}|g" $FILE_NAME_FRONTEND
+sed -i "" "s|\$LANAPP_SERVICE_URL|${LANAPP_SERVICE_URL:-https://lanapp-api.myxperiences.org}|g" $FILE_NAME_FRONTEND
+sed -i "" "s|\$AUTH_SERVICE_URL|${AUTH_SERVICE_URL:-}|g" $FILE_NAME_FRONTEND
+sed -i "" "s|\$NEXT_PUBLIC_SKIP_AUTH|${NEXT_PUBLIC_SKIP_AUTH:-false}|g" $FILE_NAME_FRONTEND
 sed -i "" "s|\$AWS_REGION|$AWS_REGION|g" $FILE_NAME_FRONTEND
 sed -i "" "s|\$COGNITO_USER_POOL_ID|$COGNITO_USER_POOL_ID|g" $FILE_NAME_FRONTEND
 sed -i "" "s|\$COGNITO_CLIENT_ID|$COGNITO_CLIENT_ID|g" $FILE_NAME_FRONTEND
@@ -70,8 +78,10 @@ aws ecs create-service \
   --cluster $CLUSTER_NAME \
   --service-name $SERVICE_NAME \
   --task-definition $TASK_FAMILY \
-  --desired-count 1 \
+  --desired-count "$ECS_DESIRED_COUNT" \
   --launch-type FARGATE \
+  --health-check-grace-period-seconds "$ECS_HEALTH_CHECK_GRACE_PERIOD" \
+  --deployment-configuration "$ECS_DEPLOYMENT_CONFIGURATION" \
   --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_A,$SUBNET_B],securityGroups=[$SECURITY_GROUP],assignPublicIp=ENABLED}" \
   --load-balancers "targetGroupArn=$TARGET_GROUP_ARN,containerName=lanapp-ui,containerPort=3000" \
   --region $REGION

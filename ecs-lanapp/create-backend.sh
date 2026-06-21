@@ -2,6 +2,10 @@
 # =================================================================
 # CONFIGURACIÓN BASE
 # =================================================================
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=deploy-flags.sh
+source "$SCRIPT_DIR/deploy-flags.sh"
+
 REGION="us-east-1"
 CLUSTER_NAME="mexp-apps-shared-cluster"
 SERVICE_NAME="mexp-lanapp-back-service"
@@ -87,8 +91,10 @@ aws ecs create-service \
   --cluster $CLUSTER_NAME \
   --service-name $SERVICE_NAME \
   --task-definition $TASK_FAMILY \
-  --desired-count 1 \
+  --desired-count "$ECS_DESIRED_COUNT" \
   --launch-type FARGATE \
+  --health-check-grace-period-seconds "$ECS_HEALTH_CHECK_GRACE_PERIOD" \
+  --deployment-configuration "$ECS_DEPLOYMENT_CONFIGURATION" \
   --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_A,$SUBNET_B],securityGroups=[$SECURITY_GROUP],assignPublicIp=ENABLED}" \
   --load-balancers "targetGroupArn=$TARGET_GROUP_ARN,containerName=lanapp-api,containerPort=3000" \
   --region $REGION
