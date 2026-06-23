@@ -28,7 +28,9 @@
           { "name": "AWS_REGION", "value": "$AWS_REGION" },
           { "name": "COGNITO_USER_POOL_ID", "value": "$COGNITO_USER_POOL_ID" },
           { "name": "COGNITO_CLIENT_ID", "value": "$COGNITO_CLIENT_ID" },
-          { "name": "COGNITO_CLIENT_SECRET", "value": "$COGNITO_CLIENT_SECRET" }
+          { "name": "COGNITO_CLIENT_SECRET", "value": "$COGNITO_CLIENT_SECRET" },
+          { "name": "INVITE_EMAIL_FROM", "value": "$INVITE_EMAIL_FROM" },
+          { "name": "NEXT_PUBLIC_APP_URL", "value": "$NEXT_PUBLIC_APP_URL" }
         ],
         "logConfiguration": {
           "logDriver": "awslogs",

@@ -16,6 +16,7 @@ locals {
   cognito_idp_actions = sort([
     "cognito-idp:AdminAddUserToGroup",
     "cognito-idp:AdminCreateUser",
+    "cognito-idp:AdminDeleteUser",
     "cognito-idp:AdminDisableUser",
     "cognito-idp:AdminEnableUser",
     "cognito-idp:AdminGetUser",
@@ -196,4 +197,33 @@ resource "aws_iam_role" "lanapp_front_task_role" {
 resource "aws_iam_role_policy_attachment" "lanapp_front_cognito" {
   role       = aws_iam_role.lanapp_front_task_role.name
   policy_arn = aws_iam_policy.cognito_idp.arn
+}
+
+data "aws_caller_identity" "current" {}
+
+data "aws_iam_policy_document" "lanapp_front_ses" {
+  statement {
+    sid    = "SendInviteEmail"
+    effect = "Allow"
+    actions = [
+      "ses:SendEmail",
+      "ses:SendRawEmail",
+    ]
+    resources = [
+      "arn:aws:ses:${var.aws_region}:${data.aws_caller_identity.current.account_id}:identity/${var.domain_name}",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "lanapp_front_ses" {
+  name        = "mexp-lanapp-front-ses"
+  description = "Send invite emails via SES for Lanapp front BFF"
+  policy      = data.aws_iam_policy_document.lanapp_front_ses.json
+
+  tags = merge(var.tags_base, { app = "lanapp" })
+}
+
+resource "aws_iam_role_policy_attachment" "lanapp_front_ses" {
+  role       = aws_iam_role.lanapp_front_task_role.name
+  policy_arn = aws_iam_policy.lanapp_front_ses.arn
 }
