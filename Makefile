@@ -24,8 +24,8 @@ MYXP_FRONT_DIR := ../../Prueba/frontend
 # ============ NOMBRES DE IMAGENES ============
 ADMIN_BACK_REPO := mexp-admin-back
 ADMIN_FRONT_REPO := mexp-admin-front
-MYXP_BACK_REPO := mexp-lanapp-back
-MYXP_FRONT_REPO := mexp-lanapp-front
+MYXP_BACK_REPO := mexp-myxperiences-back
+MYXP_FRONT_REPO := mexp-myxperiences-front
 
 # ============ CONFIGURACIONES POR SERVICIO ============
 # Admin Backend
@@ -114,6 +114,8 @@ build-admin-front:
 	echo "📦 Building: $(ADMIN_FRONT_IMAGE):$$IMAGE_TAG"; \
 	docker build \
 		--build-arg NODE_ENV=production \
+		--build-arg VITE_API_SERVICE=https://admin-api.myxperiences.org/api \
+		--build-arg VITE_API_INTERNAL_API_KEY=$$(grep VITE_API_INTERNAL_API_KEY $(ADMIN_FRONT_ENV_FILE) | cut -d '=' -f2-) \
 		-t $(ADMIN_FRONT_IMAGE):$$IMAGE_TAG \
 		-t $(ADMIN_FRONT_IMAGE):latest \
 		-f $(ADMIN_FRONT_DIR)/Dockerfile \
@@ -140,6 +142,7 @@ build-myxp-front:
 	echo "📦 Building: $(MYXP_FRONT_IMAGE):$$IMAGE_TAG"; \
 	docker build \
 		--build-arg NODE_ENV=production \
+		--build-arg VITE_API_SERVICE=https://api.myxperiences.org/api \
 		-t $(MYXP_FRONT_IMAGE):$$IMAGE_TAG \
 		-t $(MYXP_FRONT_IMAGE):latest \
 		-f $(MYXP_FRONT_DIR)/Dockerfile \
@@ -196,6 +199,7 @@ update-admin-back:
 .PHONY: update-admin-front
 update-admin-front:
 	$(call print_section,🚀 UPDATING ADMIN FRONTEND SERVICE)
+	@bash update-env-tag.sh ecs-admin/.env_admin_frontend.template $(ADMIN_FRONT_DIR) || exit 1
 	@cd ecs-admin && bash update-admin-frontend.sh || exit 1
 
 .PHONY: update-myxp-back

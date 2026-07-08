@@ -13,7 +13,7 @@ SERVICE_NAME="mexp-admin-front-service"
 TASK_FAMILY="mexp-admin-front"
 TEMPLATE_FILE="admin-front-task-definition.json"
 OUTPUT_FILE="admin-front-task-definition-var.json"
-FRONTEND_DIR="../../Frontend-Admin"
+# FRONTEND_DIR="../../Frontend-Admin"
 
 # Function to escape special characters for sed replacement
 escape_sed_replacement() {
@@ -30,7 +30,10 @@ replace_var() {
 }
 
 # Get IMAGE_TAG from git
-IMAGE_TAG=$(git -C "$FRONTEND_DIR" rev-parse --short HEAD 2>/dev/null || echo "manual")
+# IMAGE_TAG=$(git -C "$FRONTEND_DIR" rev-parse --short HEAD 2>/dev/null || echo "manual")
+
+# Copy template to output file
+cp "$TEMPLATE_FILE" "$OUTPUT_FILE"
 
 # Load other variables from .env_admin_frontend.template
 if [ -f .env_admin_frontend.template ]; then
@@ -44,9 +47,6 @@ fi
 
 echo "🔄 Starting admin frontend update..."
 echo "📦 Using IMAGE_TAG: $IMAGE_TAG"
-
-# Copy template to output file
-cp "$TEMPLATE_FILE" "$OUTPUT_FILE"
 
 # Replace variables
 replace_var "IMAGE_TAG" "$IMAGE_TAG"
