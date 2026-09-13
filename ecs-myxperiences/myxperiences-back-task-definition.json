@@ -32,6 +32,15 @@
         { "name": "MAILER_USER", "value": "$MAILER_USER" },
         { "name": "MAILER_PASS", "value": "$MAILER_PASS" },
         { "name": "MAILER_FRONT", "value": "$MAILER_FRONT" },
+        {
+          "name": "MAIL_PAYMENT_INSCRIPTION",
+          "value": "$MAIL_PAYMENT_INSCRIPTION"
+        },
+        {
+          "name": "MAIL_PAYMENT_DESTINATION",
+          "value": "$MAIL_PAYMENT_DESTINATION"
+        },
+        { "name": "MAIL_PAYMENT_GENERAL", "value": "$MAIL_PAYMENT_GENERAL" },
         { "name": "DOMINIO_EXPERIENCES", "value": "$DOMINIO_EXPERIENCES" },
         { "name": "AWS_BUCKET_NAME", "value": "$AWS_BUCKET_NAME" },
         { "name": "AWS_BUCKET_REGION", "value": "$AWS_BUCKET_REGION" },
@@ -39,8 +48,6 @@
         { "name": "AWS_SECRET_ACCESS_KEY", "value": "$AWS_SECRET_ACCESS_KEY" },
         { "name": "PROD", "value": "$PROD" },
         { "name": "SYNCALTER", "value": "$SYNCALTER" },
-        { "name": "SYNCFORCE", "value": "$SYNCFORCE" },
-        { "name": "MAKE_WEBHOOK_URL", "value": "$MAKE_WEBHOOK_URL" },
         { "name": "BACKEND_ADMIN_URL", "value": "$BACKEND_ADMIN_URL" },
         { "name": "INTERNAL_API_KEY", "value": "$INTERNAL_API_KEY" },
         { "name": "GOOGLE_SHEET_ID", "value": "$GOOGLE_SHEET_ID" },
@@ -48,7 +55,9 @@
           "name": "GOOGLE_SERVICE_ACCOUNT_EMAIL",
           "value": "$GOOGLE_SERVICE_ACCOUNT_EMAIL"
         },
-        { "name": "GOOGLE_PRIVATE_KEY", "value": "$GOOGLE_PRIVATE_KEY" }
+        { "name": "GOOGLE_PRIVATE_KEY", "value": "$GOOGLE_PRIVATE_KEY" },
+        { "name": "STRIPE_SECRET_KEY", "value": "$STRIPE_SECRET_KEY" },
+        { "name": "STRIPE_WEBHOOK_SECRET", "value": "$STRIPE_WEBHOOK_SECRET" }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
