@@ -57,7 +57,16 @@
         },
         { "name": "GOOGLE_PRIVATE_KEY", "value": "$GOOGLE_PRIVATE_KEY" },
         { "name": "STRIPE_SECRET_KEY", "value": "$STRIPE_SECRET_KEY" },
-        { "name": "STRIPE_WEBHOOK_SECRET", "value": "$STRIPE_WEBHOOK_SECRET" }
+        { "name": "STRIPE_WEBHOOK_SECRET", "value": "$STRIPE_WEBHOOK_SECRET" },
+        {
+          "name": "GOOGLE_DESTINATIONS_SHEET_ID",
+          "value": "$GOOGLE_DESTINATIONS_SHEET_ID"
+        },
+        {
+          "name": "DESTINATIONS_SYNC_API_KEY",
+          "value": "$DESTINATIONS_SYNC_API_KEY"
+        },
+        { "name": "WEBHOOK_URL", "value": "$WEBHOOK_URL" }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
